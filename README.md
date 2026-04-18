@@ -1,90 +1,83 @@
 # SIREN — Situational Intelligence & Response Enablement Network
 
-AI-powered 911 emergency response platform. Built for a hackathon demo.
+> AI-powered 911 emergency response platform. Hackathon demo.
 
-## What it does
+**"Ali's grandfather had a medical emergency. The call was placed on hold. SIREN fixes that."**
 
-- **F1 AI Hold-Time Intake** — Callers on hold talk to an AI that captures structured incident data in real time and streams it to the dispatcher dashboard.
-- **F2 Dispatcher Command Board** — Dark command-center UI with live incident queue, map, and dispatch flow.
-- **F3 Camera-Aware Routing** — Routes that factor in Austin public traffic cameras and real-time congestion scoring.
-- **F4 AI Scan Mode** — Point your phone camera at an emergency scene, get 3 immediate action steps.
-- **F5 Predictive Heatmap** — ML-powered heatmap showing where incidents are likely in the next hour.
+SIREN is an end-to-end emergency response platform built in ~12 hours by two autonomous AI agents. When a 911 call is placed on hold, SIREN's AI picks up — confirming location, asking the right questions, and filing a live incident ticket before a dispatcher ever answers.
+
+---
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm (`npm i -g pnpm`)
-- Python 3.11+ (for ML service, optional)
+- Node.js 20+ and pnpm (`npm install -g pnpm` or via install script)
+- Python 3.11+ with pip
+- An Anthropic API key
 
-### 1. Install dependencies
-
-```bash
-pnpm install
-```
-
-### 2. Configure environment
-
-```bash
-cp .env.example apps/web/.env
-# Edit apps/web/.env and add your ANTHROPIC_API_KEY
-```
-
-### 3. Initialize the database
+### Web App
 
 ```bash
 cd apps/web
-DATABASE_URL="file:./dev.db" pnpm prisma migrate dev --config prisma/prisma.config.ts
-DATABASE_URL="file:./dev.db" pnpm prisma db seed
+cp .env.example .env
+# Edit .env and add your ANTHROPIC_API_KEY
+
+pnpm install
+DATABASE_URL="file:./dev.db" pnpm db:seed   # seeds units, incidents, cameras
+
+pnpm dev  # http://localhost:3000
 ```
 
-### 4. Run the web app
+### ML Heatmap Service
 
 ```bash
-pnpm dev
-```
+# Generate historical data (one-time)
+python3 scripts/gen_fake_history.py
 
-Open [http://localhost:3000](http://localhost:3000).
-
-### 5. Run the ML service (optional, for heatmap)
-
-```bash
+# Start service
 cd services/ml
 pip install -r requirements.txt
-python scripts/gen_fake_history.py  # generate seed data
 uvicorn main:app --port 8001
 ```
 
-## Demo URLs
+---
 
-| URL | Description |
-|-----|-------------|
-| `/` | Landing page |
-| `/dashboard` | Dispatcher command center |
-| `/call` | Caller intake simulator |
-| `/scan` | AI scene guidance (mobile) |
-| `/report` | Citizen non-urgent report |
+## Feature Overview
+
+| Feature | URL | Description |
+|---|---|---|
+| Dispatcher Board | `/dashboard` | Dark command center with map, incident queue, dispatch |
+| Caller Intake | `/call` | AI holds your place in queue, files a live ticket |
+| Scan Mode | `/scan` | Point camera at scene → 3 immediate actions |
+| Landing | `/` | Navigation hub |
 
 ## Architecture
 
-- **Framework:** Next.js 16 (App Router) + TypeScript
-- **Styling:** Tailwind CSS v4 + shadcn/ui
-- **Database:** SQLite via Prisma 7
-- **AI:** Anthropic Claude claude-sonnet-4-6 (text + vision)
-- **Map:** MapLibre GL JS + OpenStreetMap
-- **ML:** Python FastAPI + scipy gaussian_kde
-
-## Seeding demo data
-
-```bash
-cd apps/web
-# Seed units, cameras, and incidents
-DATABASE_URL="file:./dev.db" pnpm db:seed
-
-# Start demo tick (nudges units, spawns incidents)
-DATABASE_URL="file:./dev.db" pnpm tsx scripts/demo_tick.ts
-
-# Seed in-flight intake calls
-DATABASE_URL="file:./dev.db" pnpm tsx scripts/demo_seed_calls.ts
 ```
+apps/web/          Next.js 16 (App Router) + Tailwind + shadcn/ui
+  lib/austin.ts    Austin traffic camera feed (Socrata + fallback)
+  lib/osrm.ts      Route computation via OSRM public server
+  lib/congestion.ts Claude vision congestion scoring (cached 60s)
+  lib/claude.ts    Anthropic SDK wrapper (JSON + text)
+  lib/db.ts        Prisma 7 + better-sqlite3
+services/ml/       Python FastAPI heatmap service
+  main.py          Gaussian KDE over historical incidents
+```
+
+## Environment Variables
+
+```env
+ANTHROPIC_API_KEY=        # required for AI features
+DATABASE_URL=file:./dev.db
+ML_SERVICE_URL=http://localhost:8001
+NEXT_PUBLIC_MAPTILER_KEY= # optional, for prettier tiles
+```
+
+## Demo
+
+See `docs/DEMO_SCRIPT.md` for the full walkthrough.
+
+---
+
+*Every second matters.*

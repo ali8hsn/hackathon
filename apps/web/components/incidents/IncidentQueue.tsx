@@ -1,6 +1,7 @@
 "use client";
 
 import { IncidentCard } from "@/components/incidents/IncidentCard";
+import { LiveTicket } from "@/components/intake/LiveTicket";
 import type { Incident } from "@/components/dashboard/DashboardClient";
 
 interface Props {
@@ -21,6 +22,8 @@ export function IncidentQueue({ incidents, selectedId, onSelect }: Props) {
           {open.length} active
         </span>
       </div>
+
+      <LiveTicket />
 
       <div className="flex-1 overflow-y-auto">
         {open.length === 0 && (
