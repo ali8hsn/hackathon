@@ -1,0 +1,68 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model IntakeSession {
+  id        String    @id @default(cuid())
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  transcript String   @default("")
+  lat       Float?
+  lng       Float?
+  ticket    String    @default("{}")
+  status    String    @default("intake")
+  incident  Incident?
+  incidentId String?  @unique
+}
+
+model Incident {
+  id             String    @id @default(cuid())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  type           String
+  severity       Int
+  lat            Float
+  lng            Float
+  address        String?
+  description    String?
+  status         String    @default("open")
+  reporterKind   String    @default("dispatcher")
+  mediaUrl       String?
+  assignedUnitId String?
+  eta            Int?
+  assignedUnit   Unit?         @relation(fields: [assignedUnitId], references: [id])
+  intakeSession  IntakeSession? @relation(fields: [intakeSessionId], references: [id])
+  intakeSessionId String?      @unique
+}
+
+model Unit {
+  id        String     @id @default(cuid())
+  callsign  String     @unique
+  kind      String
+  lat       Float
+  lng       Float
+  status    String     @default("available")
+  incidents Incident[]
+}
+
+model Camera {
+  id             String    @id
+  name           String
+  lat            Float
+  lng            Float
+  stillUrl       String
+  lastCongestion Float?
+  lastSampledAt  DateTime?
+}
+
+model ScanEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  mode      String
+  summary   String
+  actions   String
+}

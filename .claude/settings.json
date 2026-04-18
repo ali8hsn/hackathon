@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(npm *)",
+      "Bash(git *)",
+      "Bash(prisma *)",
+      "Bash(node *)",
+      "Bash(tsc *)",
+      "Bash(eslint *)",
+      "Bash(python *)",
+      "Bash(uvicorn *)",
+      "Bash(pip *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(mkdir *)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(sudo *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(curl * | sh)",
+      "Bash(chmod 777 *)"
+    ]
+  }
+}
