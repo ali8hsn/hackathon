@@ -83,6 +83,8 @@ export function DashboardClient() {
   }, []);
 
   useEffect(() => {
+    // reason: polling pattern — fetchAll updates state from external source, not an effect cascade
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchAll();
     const interval = setInterval(() => void fetchAll(), 1000);
     return () => clearInterval(interval);
